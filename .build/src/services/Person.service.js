@@ -1,4 +1,15 @@
 "use strict";
+var __assign = (this && this.__assign) || function () {
+    __assign = Object.assign || function(t) {
+        for (var s, i = 1, n = arguments.length; i < n; i++) {
+            s = arguments[i];
+            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
+                t[p] = s[p];
+        }
+        return t;
+    };
+    return __assign.apply(this, arguments);
+};
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -38,6 +49,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.PersonService = exports.PersonServiceAbstract = void 0;
 var types_1 = require("../interfaces/types");
+var uuid_1 = require("uuid");
 var PersonServiceAbstract = /** @class */ (function () {
     function PersonServiceAbstract() {
     }
@@ -45,13 +57,14 @@ var PersonServiceAbstract = /** @class */ (function () {
 }());
 exports.PersonServiceAbstract = PersonServiceAbstract;
 var PersonService = /** @class */ (function () {
-    function PersonService(planetaRepository, personaRepository) {
+    function PersonService(planetaRepository, personaRepository, dynamoRespository) {
         this.planetaRepository = planetaRepository;
         this.personaRepository = personaRepository;
+        this.dynamoRepository = dynamoRespository;
     }
     PersonService.prototype.getPerson = function (id) {
         return __awaiter(this, void 0, void 0, function () {
-            var _a, persona, planeta;
+            var _a, persona, planeta, personaResult, dynamoRecord;
             return __generator(this, function (_b) {
                 switch (_b.label) {
                     case 0: return [4 /*yield*/, Promise.all([
@@ -60,7 +73,13 @@ var PersonService = /** @class */ (function () {
                         ])];
                     case 1:
                         _a = _b.sent(), persona = _a[0], planeta = _a[1];
-                        return [2 /*return*/, this.mapping(persona.properties, planeta.properties)];
+                        personaResult = this.mapping(persona.properties, planeta.properties);
+                        dynamoRecord = __assign(__assign({}, personaResult), { id: (0, uuid_1.v4)() });
+                        console.log('Persona obtenida: ', dynamoRecord);
+                        return [4 /*yield*/, this.dynamoRepository.saveItem('personasTable', dynamoRecord)];
+                    case 2:
+                        _b.sent();
+                        return [2 /*return*/, personaResult];
                 }
             });
         });

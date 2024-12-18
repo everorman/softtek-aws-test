@@ -37,18 +37,20 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 var Response_1 = require("../common/Response");
+var Dynamo_repository_1 = require("../repository/Dynamo.repository");
 var Persona_repository_1 = require("../repository/Persona.repository");
 var Planeta_repository_1 = require("../repository/Planeta.repository");
 var Person_service_1 = require("../services/Person.service");
 module.exports.handler = function (event) { return __awaiter(void 0, void 0, void 0, function () {
-    var personaRepository, planetaRepository, service, responseHandler, result, err_1;
+    var personaRepository, planetaRepository, dynamoRepository, service, responseHandler, result, err_1;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
                 console.log('Esto es una prueba');
                 personaRepository = new Persona_repository_1.PersonaRepository();
                 planetaRepository = new Planeta_repository_1.PlanetaRepository();
-                service = new Person_service_1.PersonService(planetaRepository, personaRepository);
+                dynamoRepository = new Dynamo_repository_1.DynamoRepository('us-east-1', true);
+                service = new Person_service_1.PersonService(planetaRepository, personaRepository, dynamoRepository);
                 responseHandler = new Response_1.ResponseHandler();
                 _a.label = 1;
             case 1:

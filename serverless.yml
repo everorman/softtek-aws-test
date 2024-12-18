@@ -5,9 +5,23 @@ provider:
   name: aws
   runtime: nodejs20.x
 
+custom:
+  dynamodb:
+    start:
+      port: 8000
+      inMemory: true
+      heapInitial: 200m
+      heapMax: 1g
+      migrate: true
+    seed:
+      local:
+        sources:
+          - table: personasTable
+
 plugins:
     - serverless-plugin-typescript
     - serverless-offline
+    - serverless-dynamodb-local
 
 functions:
   api:
@@ -16,3 +30,16 @@ functions:
       - httpApi:
           path: /fusionados
           method: get
+
+resources:
+  Resources:
+    ExampleTable:
+      Type: 'AWS::DynamoDB::Table'
+      Properties:
+        TableName: personasTable
+        AttributeDefinitions:
+          - AttributeName: id
+            AttributeType: S
+        KeySchema:
+          - AttributeName: id
+            KeyType: HASH

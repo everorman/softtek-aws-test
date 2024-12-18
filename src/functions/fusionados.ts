@@ -1,4 +1,5 @@
 import { ResponseHandler } from '../common/Response';
+import { DynamoRepository } from '../repository/Dynamo.repository';
 import { PersonaRepository } from '../repository/Persona.repository';
 import { PlanetaRepository } from '../repository/Planeta.repository';
 import { PersonService } from '../services/Person.service';
@@ -7,7 +8,8 @@ module.exports.handler = async (event) => {
     console.log('Esto es una prueba');
     const personaRepository = new PersonaRepository();
     const planetaRepository = new PlanetaRepository();
-    const service = new PersonService(planetaRepository, personaRepository);
+    const dynamoRepository = new DynamoRepository('us-east-1', true);
+    const service = new PersonService(planetaRepository, personaRepository, dynamoRepository);
 
     const responseHandler = new ResponseHandler();
     try {

@@ -36,26 +36,53 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-var Response_1 = require("./src/common/Response");
-var Persona_repository_1 = require("./src/repository/Persona.repository");
-var Planeta_repository_1 = require("./src/repository/Planeta.repository");
-var Person_service_1 = require("./src/services/Person.service");
-module.exports.handler = function (event) { return __awaiter(void 0, void 0, void 0, function () {
-    var personaRepository, planetaRepository, service, result, responseHandler;
-    return __generator(this, function (_a) {
-        switch (_a.label) {
-            case 0:
-                console.log('Esto es una prueba');
-                personaRepository = new Persona_repository_1.PersonaRepository();
-                planetaRepository = new Planeta_repository_1.PlanetaRepository();
-                service = new Person_service_1.PersonService(planetaRepository, personaRepository);
-                return [4 /*yield*/, service.getPerson(1)];
-            case 1:
-                result = _a.sent();
-                console.log('##########', result);
-                responseHandler = new Response_1.ResponseHandler();
-                return [2 /*return*/, responseHandler.ok(result, 'consulta realizada con exito')];
+exports.DynamoRepository = void 0;
+var client_dynamodb_1 = require("@aws-sdk/client-dynamodb");
+var lib_dynamodb_1 = require("@aws-sdk/lib-dynamodb");
+var DynamoRepository = /** @class */ (function () {
+    function DynamoRepository(region, isLocal) {
+        if (isLocal === void 0) { isLocal = false; }
+        var options = { region: region };
+        // Configura el endpoint para DynamoDB local si isLocal es true
+        if (isLocal) {
+            options.endpoint = 'http://localhost:8000';
         }
-    });
-}); };
-//# sourceMappingURL=index.js.map
+        var dynamoClient = new client_dynamodb_1.DynamoDBClient(options);
+        this.client = lib_dynamodb_1.DynamoDBDocumentClient.from(dynamoClient);
+    }
+    /**
+     * Almacena un objeto en una tabla de DynamoDB.
+     * @param tableName - El nombre de la tabla en DynamoDB.
+     * @param item - El objeto que se almacenará en la tabla.
+     */
+    DynamoRepository.prototype.saveItem = function (tableName, item) {
+        return __awaiter(this, void 0, void 0, function () {
+            var params, error_1;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        params = {
+                            TableName: tableName,
+                            Item: item,
+                        };
+                        _a.label = 1;
+                    case 1:
+                        _a.trys.push([1, 3, , 4]);
+                        return [4 /*yield*/, this.client.send(new lib_dynamodb_1.PutCommand(params))];
+                    case 2:
+                        _a.sent();
+                        console.log("Item guardado exitosamente en la tabla ".concat(tableName));
+                        return [3 /*break*/, 4];
+                    case 3:
+                        error_1 = _a.sent();
+                        console.error('Error al guardar el item en DynamoDB:', error_1);
+                        throw new Error('No se pudo guardar el item en DynamoDB');
+                    case 4: return [2 /*return*/];
+                }
+            });
+        });
+    };
+    return DynamoRepository;
+}());
+exports.DynamoRepository = DynamoRepository;
+//# sourceMappingURL=Dynamo.repository.js.map

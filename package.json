@@ -9,11 +9,15 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "serverless-dynamodb-local": "^0.2.40",
     "serverless-offline": "^14.4.0",
     "serverless-plugin-typescript": "^2.1.5",
     "typescript": "^5.7.2"
   },
   "dependencies": {
-    "axios": "^1.7.9"
+    "@aws-sdk/client-dynamodb": "^3.714.0",
+    "@aws-sdk/lib-dynamodb": "^3.714.0",
+    "axios": "^1.7.9",
+    "uuid": "^11.0.3"
   }
 }
