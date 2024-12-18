@@ -12,5 +12,8 @@
     "serverless-offline": "^14.4.0",
     "serverless-plugin-typescript": "^2.1.5",
     "typescript": "^5.7.2"
+  },
+  "dependencies": {
+    "axios": "^1.7.9"
   }
 }

@@ -36,26 +36,54 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-var Response_1 = require("./src/common/Response");
-var Persona_repository_1 = require("./src/repository/Persona.repository");
-var Planeta_repository_1 = require("./src/repository/Planeta.repository");
-var Person_service_1 = require("./src/services/Person.service");
-module.exports.handler = function (event) { return __awaiter(void 0, void 0, void 0, function () {
-    var personaRepository, planetaRepository, service, result, responseHandler;
-    return __generator(this, function (_a) {
-        switch (_a.label) {
-            case 0:
-                console.log('Esto es una prueba');
-                personaRepository = new Persona_repository_1.PersonaRepository();
-                planetaRepository = new Planeta_repository_1.PlanetaRepository();
-                service = new Person_service_1.PersonService(planetaRepository, personaRepository);
-                return [4 /*yield*/, service.getPerson(1)];
-            case 1:
-                result = _a.sent();
-                console.log('##########', result);
-                responseHandler = new Response_1.ResponseHandler();
-                return [2 /*return*/, responseHandler.ok(result, 'consulta realizada con exito')];
-        }
-    });
-}); };
-//# sourceMappingURL=index.js.map
+exports.PersonService = exports.PersonServiceAbstract = void 0;
+var PersonServiceAbstract = /** @class */ (function () {
+    function PersonServiceAbstract() {
+    }
+    return PersonServiceAbstract;
+}());
+exports.PersonServiceAbstract = PersonServiceAbstract;
+var PersonService = /** @class */ (function () {
+    function PersonService(planetaRepository, personaRepository) {
+        this.planetaRepository = planetaRepository;
+        this.personaRepository = personaRepository;
+    }
+    PersonService.prototype.getPerson = function (id) {
+        return __awaiter(this, void 0, void 0, function () {
+            var _a, persona, planeta;
+            return __generator(this, function (_b) {
+                switch (_b.label) {
+                    case 0: return [4 /*yield*/, Promise.all([
+                            this.personaRepository.get(id),
+                            this.planetaRepository.get(this.generatePlanetIds()),
+                        ])];
+                    case 1:
+                        _a = _b.sent(), persona = _a[0], planeta = _a[1];
+                        console.log(persona, planeta);
+                        return [2 /*return*/, this.mapping(persona.properties, planeta.properties)];
+                }
+            });
+        });
+    };
+    PersonService.prototype.generatePlanetIds = function () {
+        var id = Math.floor(Math.random() * 50);
+        console.log('id plante', id);
+        return id;
+    };
+    PersonService.prototype.mapping = function (persona, planeta) {
+        return {
+            genero: persona.gender === 'male' ? 'masculino' : 'femenino',
+            fechaNacimiento: persona.birth_year,
+            nombre: persona.nombre,
+            planeta: {
+                nombre: planeta.name,
+                gravedad: planeta.gravity,
+                periodoRotacion: planeta.rotation_period,
+                periodoTraslacion: planeta.orbital_period,
+            },
+        };
+    };
+    return PersonService;
+}());
+exports.PersonService = PersonService;
+//# sourceMappingURL=Person.service.js.map

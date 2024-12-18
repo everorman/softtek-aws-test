@@ -1,4 +1,19 @@
 "use strict";
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    };
+    return function (d, b) {
+        if (typeof b !== "function" && b !== null)
+            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -36,26 +51,39 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-var Response_1 = require("./src/common/Response");
-var Persona_repository_1 = require("./src/repository/Persona.repository");
-var Planeta_repository_1 = require("./src/repository/Planeta.repository");
-var Person_service_1 = require("./src/services/Person.service");
-module.exports.handler = function (event) { return __awaiter(void 0, void 0, void 0, function () {
-    var personaRepository, planetaRepository, service, result, responseHandler;
-    return __generator(this, function (_a) {
-        switch (_a.label) {
-            case 0:
-                console.log('Esto es una prueba');
-                personaRepository = new Persona_repository_1.PersonaRepository();
-                planetaRepository = new Planeta_repository_1.PlanetaRepository();
-                service = new Person_service_1.PersonService(planetaRepository, personaRepository);
-                return [4 /*yield*/, service.getPerson(1)];
-            case 1:
-                result = _a.sent();
-                console.log('##########', result);
-                responseHandler = new Response_1.ResponseHandler();
-                return [2 /*return*/, responseHandler.ok(result, 'consulta realizada con exito')];
-        }
-    });
-}); };
-//# sourceMappingURL=index.js.map
+exports.PersonaRepository = void 0;
+var axios_1 = require("axios");
+var Repository_interface_1 = require("../interfaces/Repository.interface");
+var PersonaRepository = /** @class */ (function (_super) {
+    __extends(PersonaRepository, _super);
+    function PersonaRepository() {
+        return _super !== null && _super.apply(this, arguments) || this;
+    }
+    PersonaRepository.prototype.get = function (id) {
+        return __awaiter(this, void 0, void 0, function () {
+            var response, planeta, error_1;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        _a.trys.push([0, 2, , 3]);
+                        return [4 /*yield*/, axios_1.default.get("https://www.swapi.tech/api/people/".concat(id))];
+                    case 1:
+                        response = _a.sent();
+                        planeta = response.data;
+                        if (planeta.message !== 'ok') {
+                            throw new Error('Response Persona Error');
+                        }
+                        return [2 /*return*/, planeta.result];
+                    case 2:
+                        error_1 = _a.sent();
+                        console.error('Error fetching person:', error_1.message || error_1);
+                        throw new Error('Failed to fetch person data');
+                    case 3: return [2 /*return*/];
+                }
+            });
+        });
+    };
+    return PersonaRepository;
+}(Repository_interface_1.RepositoryAbstract));
+exports.PersonaRepository = PersonaRepository;
+//# sourceMappingURL=Persona.repository.js.map
