@@ -1,7 +1,7 @@
-import { ResponseHandler } from './src/common/Response';
-import { PersonaRepository } from './src/repository/Persona.repository';
-import { PlanetaRepository } from './src/repository/Planeta.repository';
-import { PersonService } from './src/services/Person.service';
+import { ResponseHandler } from '../common/Response';
+import { PersonaRepository } from '../repository/Persona.repository';
+import { PlanetaRepository } from '../repository/Planeta.repository';
+import { PersonService } from '../services/Person.service';
 
 module.exports.handler = async (event) => {
     console.log('Esto es una prueba');

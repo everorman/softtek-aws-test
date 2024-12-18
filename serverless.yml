@@ -11,8 +11,8 @@ plugins:
 
 functions:
   api:
-    handler: index.handler
+    handler: src/functions/fusionados.handler
     events:
       - httpApi:
-          path: /
+          path: /fusionados
           method: get

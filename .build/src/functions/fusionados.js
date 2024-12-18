@@ -36,54 +36,32 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.PersonService = exports.PersonServiceAbstract = void 0;
-var types_1 = require("../interfaces/types");
-var PersonServiceAbstract = /** @class */ (function () {
-    function PersonServiceAbstract() {
-    }
-    return PersonServiceAbstract;
-}());
-exports.PersonServiceAbstract = PersonServiceAbstract;
-var PersonService = /** @class */ (function () {
-    function PersonService(planetaRepository, personaRepository) {
-        this.planetaRepository = planetaRepository;
-        this.personaRepository = personaRepository;
-    }
-    PersonService.prototype.getPerson = function (id) {
-        return __awaiter(this, void 0, void 0, function () {
-            var _a, persona, planeta;
-            return __generator(this, function (_b) {
-                switch (_b.label) {
-                    case 0: return [4 /*yield*/, Promise.all([
-                            this.personaRepository.get(id),
-                            this.planetaRepository.get(this.generatePlanetIds()),
-                        ])];
-                    case 1:
-                        _a = _b.sent(), persona = _a[0], planeta = _a[1];
-                        return [2 /*return*/, this.mapping(persona.properties, planeta.properties)];
-                }
-            });
-        });
-    };
-    PersonService.prototype.generatePlanetIds = function () {
-        var id = Math.floor(Math.random() * 50);
-        console.log('id plante', id);
-        return id;
-    };
-    PersonService.prototype.mapping = function (persona, planeta) {
-        return {
-            nombre: persona.name,
-            genero: persona.gender === 'male' ? types_1.Genero.Masculino : types_1.Genero.Femenino,
-            fechaNacimiento: persona.birth_year,
-            planeta: {
-                nombre: planeta.name,
-                gravedad: planeta.gravity === 'unknown' ? 'desconocida' : planeta.gravity,
-                periodoRotacion: Number(planeta.rotation_period),
-                periodoTraslacion: Number(planeta.orbital_period),
-            },
-        };
-    };
-    return PersonService;
-}());
-exports.PersonService = PersonService;
-//# sourceMappingURL=Person.service.js.map
+var Response_1 = require("../common/Response");
+var Persona_repository_1 = require("../repository/Persona.repository");
+var Planeta_repository_1 = require("../repository/Planeta.repository");
+var Person_service_1 = require("../services/Person.service");
+module.exports.handler = function (event) { return __awaiter(void 0, void 0, void 0, function () {
+    var personaRepository, planetaRepository, service, responseHandler, result, err_1;
+    return __generator(this, function (_a) {
+        switch (_a.label) {
+            case 0:
+                console.log('Esto es una prueba');
+                personaRepository = new Persona_repository_1.PersonaRepository();
+                planetaRepository = new Planeta_repository_1.PlanetaRepository();
+                service = new Person_service_1.PersonService(planetaRepository, personaRepository);
+                responseHandler = new Response_1.ResponseHandler();
+                _a.label = 1;
+            case 1:
+                _a.trys.push([1, 3, , 4]);
+                return [4 /*yield*/, service.getPerson(1)];
+            case 2:
+                result = _a.sent();
+                return [2 /*return*/, responseHandler.ok(result, 'consulta realizada con exito')];
+            case 3:
+                err_1 = _a.sent();
+                return [2 /*return*/, responseHandler.internalError(err_1.message)];
+            case 4: return [2 /*return*/];
+        }
+    });
+}); };
+//# sourceMappingURL=fusionados.js.map

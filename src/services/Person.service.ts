@@ -1,7 +1,8 @@
 import { RepositoryAbstract } from '../interfaces/Repository.interface';
+import { Genero, Persona } from '../interfaces/types';
 
 export abstract class PersonServiceAbstract {
-    abstract getPerson(id: number): {};
+    abstract getPerson(id: number): Promise<Persona>;
 }
 
 export class PersonService implements PersonServiceAbstract {
@@ -25,16 +26,16 @@ export class PersonService implements PersonServiceAbstract {
         return id;
     }
 
-    private mapping(persona, planeta) {
+    private mapping(persona, planeta):Persona {
         return {
-            genero: persona.gender === 'male' ? 'masculino' : 'femenino',
+            nombre: persona.name,
+            genero: persona.gender === 'male' ? Genero.Masculino : Genero.Femenino,
             fechaNacimiento: persona.birth_year,
-            nombre: persona.nombre,
             planeta: {
                 nombre: planeta.name,
-                gravedad: planeta.gravity,
-                periodoRotacion: planeta.rotation_period,
-                periodoTraslacion: planeta.orbital_period,
+                gravedad: planeta.gravity === 'unknown' ? 'desconocida': planeta.gravity,
+                periodoRotacion: Number(planeta.rotation_period),
+                periodoTraslacion: Number(planeta.orbital_period),
             },
         };
     }

@@ -76,7 +76,6 @@ var PlanetaRepository = /** @class */ (function (_super) {
                         return [2 /*return*/, planeta.result];
                     case 2:
                         error_1 = _a.sent();
-                        // Manejo de errores para solicitudes fallidas o errores en la respuesta
                         console.error('Error fetching planet:', error_1.message || error_1);
                         throw new Error('Failed to fetch planet data');
                     case 3: return [2 /*return*/];
