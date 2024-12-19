@@ -37,7 +37,10 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 var Response_1 = require("../common/Response");
+var SchemaError_1 = require("../common/SchemaError");
 var Dynamo_repository_1 = require("../repository/Dynamo.repository");
+var RequestSchema_1 = require("../schema/RequestSchema");
+var RequestValidator_1 = require("../schema/RequestValidator");
 var Persona_service_1 = require("../services/Persona.service");
 module.exports.handler = function (event) { return __awaiter(void 0, void 0, void 0, function () {
     var dynamoRepository, service, payload, responseHandler, result, err_1;
@@ -51,12 +54,16 @@ module.exports.handler = function (event) { return __awaiter(void 0, void 0, voi
                 _a.label = 1;
             case 1:
                 _a.trys.push([1, 3, , 4]);
+                RequestValidator_1.RequestValidator.validate(RequestSchema_1.personaSchema, payload);
                 return [4 /*yield*/, service.save(payload)];
             case 2:
                 result = _a.sent();
                 return [2 /*return*/, responseHandler.ok(result, 'item guardado con exito')];
             case 3:
                 err_1 = _a.sent();
+                if (err_1 instanceof SchemaError_1.SchemaError) {
+                    return [2 /*return*/, responseHandler.badRequest(err_1.message)];
+                }
                 return [2 /*return*/, responseHandler.internalError(err_1.message)];
             case 4: return [2 /*return*/];
         }
