@@ -36,8 +36,8 @@ functions:
       - httpApi:
           path: /save
           method: post
-  obtener:
-    handler: src/functions/obtener.handler
+  historial:
+    handler: src/functions/historial.handler
     events:
       - httpApi:
           path: /obtener

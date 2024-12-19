@@ -11,6 +11,7 @@ export interface Planeta {
 }
 
 export interface Persona {
+    id: string;
     nombre: string;
     genero: Genero;
     fechaNacimiento: string;

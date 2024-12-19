@@ -9,10 +9,11 @@ module.exports.handler = async (event) => {
     const planetaRepository = new PlanetaRepository();
     const dynamoRepository = new DynamoRepository('us-east-1', true);
     const service = new FusionService(planetaRepository, personaRepository, dynamoRepository);
-
+    const payload = event.queryStringParameters ?? event.query ?? {};
     const responseHandler = new ResponseHandler();
+    if(!payload.id) return responseHandler.badRequest('Id is required')
     try {
-        const result = await service.getPerson(1);
+        const result = await service.getPerson(payload.id);
         return responseHandler.ok(result, 'consulta realizada con exito');
     } catch (err: any) {
         return responseHandler.internalError(err.message);

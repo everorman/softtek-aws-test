@@ -1,4 +1,4 @@
-import { DynamoDBClient, ScanCommand, ScanCommandInput } from '@aws-sdk/client-dynamodb';
+import { DynamoDBClient, PutItemCommand, ScanCommand, ScanCommandInput } from '@aws-sdk/client-dynamodb';
 import {
     DynamoDBDocumentClient,
     GetCommand,
@@ -7,6 +7,9 @@ import {
     PutCommandInput,
 } from '@aws-sdk/lib-dynamodb';
 import { DynamoAbstract } from '../interfaces/Dynamo.interface';
+import { PERSONAS_TABLE_NAME } from '../common/constants';
+import { marshall } from '@aws-sdk/util-dynamodb';
+import { Persona } from '../interfaces/types';
 
 export class DynamoRepository implements DynamoAbstract {
     private client: DynamoDBDocumentClient;
@@ -74,23 +77,39 @@ export class DynamoRepository implements DynamoAbstract {
         tableName: string,
         limit: number,
         lastEvaluatedKey?: Record<string, any>
-      ): Promise<{ items: T[]; lastEvaluatedKey?: Record<string, any> }> {
+    ): Promise<{ items: T[]; lastEvaluatedKey?: Record<string, any> }> {
         const params: ScanCommandInput = {
-          TableName: tableName,
-          Limit: limit,
-          ExclusiveStartKey: lastEvaluatedKey,
+            TableName: tableName,
+            Limit: limit,
+            ExclusiveStartKey: lastEvaluatedKey,
         };
-    
+
         try {
-          const result = await this.client.send(new ScanCommand(params));
-    
-          return {
-            items: (result.Items || []) as T[],
-            lastEvaluatedKey: result.LastEvaluatedKey,
-          };
+            const result = await this.client.send(new ScanCommand(params));
+
+            return {
+                items: (result.Items || []) as T[],
+                lastEvaluatedKey: result.LastEvaluatedKey,
+            };
         } catch (error) {
-          console.error('Error al obtener los registros paginados de DynamoDB:', error);
-          throw new Error('No se pudo obtener los registros paginados de DynamoDB');
+            console.error('Error al obtener los registros paginados de DynamoDB:', error);
+            throw new Error('No se pudo obtener los registros paginados de DynamoDB');
         }
-      }
+    }
+
+    async savePersona(persona: Persona): Promise<void> {
+        try {
+            const params = {
+                TableName: PERSONAS_TABLE_NAME,
+                Item: marshall({...persona}),
+            };
+
+            const command = new PutItemCommand(params);
+            await this.client.send(command);
+            console.log('Persona guardada exitosamente en DynamoDB');
+        } catch (error) {
+            console.error('Error al guardar la persona en DynamoDB:', error);
+            throw error;
+        }
+    }
 }

@@ -40,7 +40,7 @@ export class FusionService implements FusionServiceAbstract {
         return id;
     }
 
-    private mapping(persona, planeta): Persona {
+    private mapping(persona, planeta): Omit<Persona, 'id'> {
         return {
             nombre: persona.name,
             genero: persona.gender === 'male' ? Genero.Masculino : Genero.Femenino,

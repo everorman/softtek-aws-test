@@ -42,24 +42,28 @@ var Persona_repository_1 = require("../repository/Persona.repository");
 var Planeta_repository_1 = require("../repository/Planeta.repository");
 var Fusion_service_1 = require("../services/Fusion.service");
 module.exports.handler = function (event) { return __awaiter(void 0, void 0, void 0, function () {
-    var personaRepository, planetaRepository, dynamoRepository, service, responseHandler, result, err_1;
-    return __generator(this, function (_a) {
-        switch (_a.label) {
+    var personaRepository, planetaRepository, dynamoRepository, service, payload, responseHandler, result, err_1;
+    var _a, _b;
+    return __generator(this, function (_c) {
+        switch (_c.label) {
             case 0:
                 personaRepository = new Persona_repository_1.PersonaRepository();
                 planetaRepository = new Planeta_repository_1.PlanetaRepository();
                 dynamoRepository = new Dynamo_repository_1.DynamoRepository('us-east-1', true);
                 service = new Fusion_service_1.FusionService(planetaRepository, personaRepository, dynamoRepository);
+                payload = (_b = (_a = event.queryStringParameters) !== null && _a !== void 0 ? _a : event.query) !== null && _b !== void 0 ? _b : {};
                 responseHandler = new Response_1.ResponseHandler();
-                _a.label = 1;
+                if (!payload.id)
+                    return [2 /*return*/, responseHandler.badRequest('Id is required')];
+                _c.label = 1;
             case 1:
-                _a.trys.push([1, 3, , 4]);
-                return [4 /*yield*/, service.getPerson(1)];
+                _c.trys.push([1, 3, , 4]);
+                return [4 /*yield*/, service.getPerson(payload.id)];
             case 2:
-                result = _a.sent();
+                result = _c.sent();
                 return [2 /*return*/, responseHandler.ok(result, 'consulta realizada con exito')];
             case 3:
-                err_1 = _a.sent();
+                err_1 = _c.sent();
                 return [2 /*return*/, responseHandler.internalError(err_1.message)];
             case 4: return [2 /*return*/];
         }
