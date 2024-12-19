@@ -36,33 +36,41 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-var Response_1 = require("../common/Response");
-var Dynamo_repository_1 = require("../repository/Dynamo.repository");
-var Persona_repository_1 = require("../repository/Persona.repository");
-var Planeta_repository_1 = require("../repository/Planeta.repository");
-var Fusion_service_1 = require("../services/Fusion.service");
-module.exports.handler = function (event) { return __awaiter(void 0, void 0, void 0, function () {
-    var personaRepository, planetaRepository, dynamoRepository, service, responseHandler, result, err_1;
-    return __generator(this, function (_a) {
-        switch (_a.label) {
-            case 0:
-                personaRepository = new Persona_repository_1.PersonaRepository();
-                planetaRepository = new Planeta_repository_1.PlanetaRepository();
-                dynamoRepository = new Dynamo_repository_1.DynamoRepository('us-east-1', true);
-                service = new Fusion_service_1.FusionService(planetaRepository, personaRepository, dynamoRepository);
-                responseHandler = new Response_1.ResponseHandler();
-                _a.label = 1;
-            case 1:
-                _a.trys.push([1, 3, , 4]);
-                return [4 /*yield*/, service.getPerson(1)];
-            case 2:
-                result = _a.sent();
-                return [2 /*return*/, responseHandler.ok(result, 'consulta realizada con exito')];
-            case 3:
-                err_1 = _a.sent();
-                return [2 /*return*/, responseHandler.internalError(err_1.message)];
-            case 4: return [2 /*return*/];
-        }
-    });
-}); };
-//# sourceMappingURL=fusionados.js.map
+exports.PersonaService = exports.PersonaServiceAbstract = void 0;
+var constants_1 = require("../common/constants");
+var util_dynamodb_1 = require("@aws-sdk/util-dynamodb");
+var PersonaServiceAbstract = /** @class */ (function () {
+    function PersonaServiceAbstract() {
+    }
+    return PersonaServiceAbstract;
+}());
+exports.PersonaServiceAbstract = PersonaServiceAbstract;
+var PersonaService = /** @class */ (function () {
+    function PersonaService(dynamoRepository) {
+        this.dynamoRepository = dynamoRepository;
+    }
+    PersonaService.prototype.get = function () {
+        return __awaiter(this, arguments, void 0, function (limit, lastKey) {
+            var _a, items, lastEvaluatedKey, unmarshalledItems, unmarshalledLastKey;
+            if (limit === void 0) { limit = 10; }
+            return __generator(this, function (_b) {
+                switch (_b.label) {
+                    case 0:
+                        console.log('#################', lastKey);
+                        return [4 /*yield*/, this.dynamoRepository.getAllItemsPaginated(constants_1.PERSONAS_TABLE_NAME, limit, lastKey)];
+                    case 1:
+                        _a = _b.sent(), items = _a.items, lastEvaluatedKey = _a.lastEvaluatedKey;
+                        unmarshalledItems = items.map(function (item) { return (0, util_dynamodb_1.unmarshall)(item); });
+                        unmarshalledLastKey = lastEvaluatedKey ? (0, util_dynamodb_1.unmarshall)(lastEvaluatedKey) : undefined;
+                        return [2 /*return*/, {
+                                items: unmarshalledItems,
+                                lastEvaluatedKey: unmarshalledLastKey,
+                            }];
+                }
+            });
+        });
+    };
+    return PersonaService;
+}());
+exports.PersonaService = PersonaService;
+//# sourceMappingURL=Persona.service.js.map

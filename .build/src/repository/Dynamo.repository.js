@@ -82,6 +82,74 @@ var DynamoRepository = /** @class */ (function () {
             });
         });
     };
+    /**
+     * Obtiene un objeto en una tabla de DynamoDB.
+     * @param tableName - El nombre de la tabla en DynamoDB.
+     * @param id - Id de objeto a consultar.
+     */
+    DynamoRepository.prototype.getItemById = function (tableName, id) {
+        return __awaiter(this, void 0, void 0, function () {
+            var params, result, error_2;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        params = {
+                            TableName: tableName,
+                            Key: {
+                                id: id,
+                            },
+                        };
+                        _a.label = 1;
+                    case 1:
+                        _a.trys.push([1, 3, , 4]);
+                        return [4 /*yield*/, this.client.send(new lib_dynamodb_1.GetCommand(params))];
+                    case 2:
+                        result = _a.sent();
+                        if (!result.Item) {
+                            console.warn("El registro con ID ".concat(id, " no se encontr\u00F3 en la tabla ").concat(tableName));
+                            return [2 /*return*/, null];
+                        }
+                        console.log("Registro obtenido de la tabla ".concat(tableName, ":"), result.Item);
+                        return [2 /*return*/, result.Item];
+                    case 3:
+                        error_2 = _a.sent();
+                        console.error('Error al obtener el registro de DynamoDB:', error_2);
+                        throw new Error('No se pudo obtener el registro de DynamoDB');
+                    case 4: return [2 /*return*/];
+                }
+            });
+        });
+    };
+    DynamoRepository.prototype.getAllItemsPaginated = function (tableName, limit, lastEvaluatedKey) {
+        return __awaiter(this, void 0, void 0, function () {
+            var params, result, error_3;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        params = {
+                            TableName: tableName,
+                            Limit: limit,
+                            ExclusiveStartKey: lastEvaluatedKey,
+                        };
+                        _a.label = 1;
+                    case 1:
+                        _a.trys.push([1, 3, , 4]);
+                        return [4 /*yield*/, this.client.send(new client_dynamodb_1.ScanCommand(params))];
+                    case 2:
+                        result = _a.sent();
+                        return [2 /*return*/, {
+                                items: (result.Items || []),
+                                lastEvaluatedKey: result.LastEvaluatedKey,
+                            }];
+                    case 3:
+                        error_3 = _a.sent();
+                        console.error('Error al obtener los registros paginados de DynamoDB:', error_3);
+                        throw new Error('No se pudo obtener los registros paginados de DynamoDB');
+                    case 4: return [2 /*return*/];
+                }
+            });
+        });
+    };
     return DynamoRepository;
 }());
 exports.DynamoRepository = DynamoRepository;

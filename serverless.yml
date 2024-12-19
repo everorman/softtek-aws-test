@@ -24,11 +24,23 @@ plugins:
     - serverless-dynamodb-local
 
 functions:
-  api:
+  fusionados:
     handler: src/functions/fusionados.handler
     events:
       - httpApi:
           path: /fusionados
+          method: get
+  save:
+    handler: src/functions/save.handler
+    events:
+      - httpApi:
+          path: /save
+          method: post
+  obtener:
+    handler: src/functions/obtener.handler
+    events:
+      - httpApi:
+          path: /obtener
           method: get
 
 resources:

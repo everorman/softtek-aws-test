@@ -1,12 +1,19 @@
-import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
-import { DynamoDBDocumentClient, PutCommand, PutCommandInput } from '@aws-sdk/lib-dynamodb';
+import { DynamoDBClient, ScanCommand, ScanCommandInput } from '@aws-sdk/client-dynamodb';
+import {
+    DynamoDBDocumentClient,
+    GetCommand,
+    GetCommandInput,
+    PutCommand,
+    PutCommandInput,
+} from '@aws-sdk/lib-dynamodb';
+import { DynamoAbstract } from '../interfaces/Dynamo.interface';
 
-export class DynamoRepository {
+export class DynamoRepository implements DynamoAbstract {
     private client: DynamoDBDocumentClient;
 
     constructor(region: string, isLocal: boolean = false) {
         const options: any = { region };
-        
+
         // Configura el endpoint para DynamoDB local si isLocal es true
         if (isLocal) {
             options.endpoint = 'http://localhost:8000';
@@ -35,4 +42,55 @@ export class DynamoRepository {
             throw new Error('No se pudo guardar el item en DynamoDB');
         }
     }
+
+    /**
+     * Obtiene un objeto en una tabla de DynamoDB.
+     * @param tableName - El nombre de la tabla en DynamoDB.
+     * @param id - Id de objeto a consultar.
+     */
+    async getItemById<T>(tableName: string, id: string): Promise<T | null> {
+        const params: GetCommandInput = {
+            TableName: tableName,
+            Key: {
+                id,
+            },
+        };
+
+        try {
+            const result = await this.client.send(new GetCommand(params));
+            if (!result.Item) {
+                console.warn(`El registro con ID ${id} no se encontró en la tabla ${tableName}`);
+                return null;
+            }
+            console.log(`Registro obtenido de la tabla ${tableName}:`, result.Item);
+            return result.Item as T;
+        } catch (error) {
+            console.error('Error al obtener el registro de DynamoDB:', error);
+            throw new Error('No se pudo obtener el registro de DynamoDB');
+        }
+    }
+
+    async getAllItemsPaginated<T>(
+        tableName: string,
+        limit: number,
+        lastEvaluatedKey?: Record<string, any>
+      ): Promise<{ items: T[]; lastEvaluatedKey?: Record<string, any> }> {
+        const params: ScanCommandInput = {
+          TableName: tableName,
+          Limit: limit,
+          ExclusiveStartKey: lastEvaluatedKey,
+        };
+    
+        try {
+          const result = await this.client.send(new ScanCommand(params));
+    
+          return {
+            items: (result.Items || []) as T[],
+            lastEvaluatedKey: result.LastEvaluatedKey,
+          };
+        } catch (error) {
+          console.error('Error al obtener los registros paginados de DynamoDB:', error);
+          throw new Error('No se pudo obtener los registros paginados de DynamoDB');
+        }
+      }
 }

@@ -1,18 +1,20 @@
 import { ResponseHandler } from '../common/Response';
 import { DynamoRepository } from '../repository/Dynamo.repository';
-import { PersonaRepository } from '../repository/Persona.repository';
-import { PlanetaRepository } from '../repository/Planeta.repository';
-import { FusionService } from '../services/Fusion.service';
+import { PersonaService } from '../services/Persona.service';
 
 module.exports.handler = async (event) => {
-    const personaRepository = new PersonaRepository();
-    const planetaRepository = new PlanetaRepository();
     const dynamoRepository = new DynamoRepository('us-east-1', true);
-    const service = new FusionService(planetaRepository, personaRepository, dynamoRepository);
+    const service = new PersonaService(dynamoRepository);
+    const payload = event.queryStringParameters ?? event.query ?? {};
 
     const responseHandler = new ResponseHandler();
+    const lastKey = payload.lastKey
+        ? {
+              id: { S: payload.lastKey },
+          }
+        : undefined;
     try {
-        const result = await service.getPerson(1);
+        const result = await service.get(payload.limit, lastKey);
         return responseHandler.ok(result, 'consulta realizada con exito');
     } catch (err: any) {
         return responseHandler.internalError(err.message);

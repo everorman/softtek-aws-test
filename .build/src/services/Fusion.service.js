@@ -47,24 +47,25 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.PersonService = exports.PersonServiceAbstract = void 0;
+exports.FusionService = exports.FusionServiceAbstract = void 0;
+var constants_1 = require("../common/constants");
 var types_1 = require("../interfaces/types");
 var uuid_1 = require("uuid");
-var PersonServiceAbstract = /** @class */ (function () {
-    function PersonServiceAbstract() {
+var FusionServiceAbstract = /** @class */ (function () {
+    function FusionServiceAbstract() {
     }
-    return PersonServiceAbstract;
+    return FusionServiceAbstract;
 }());
-exports.PersonServiceAbstract = PersonServiceAbstract;
-var PersonService = /** @class */ (function () {
-    function PersonService(planetaRepository, personaRepository, dynamoRespository) {
+exports.FusionServiceAbstract = FusionServiceAbstract;
+var FusionService = /** @class */ (function () {
+    function FusionService(planetaRepository, personaRepository, dynamoRespository) {
         this.planetaRepository = planetaRepository;
         this.personaRepository = personaRepository;
         this.dynamoRepository = dynamoRespository;
     }
-    PersonService.prototype.getPerson = function (id) {
+    FusionService.prototype.getPerson = function (id) {
         return __awaiter(this, void 0, void 0, function () {
-            var _a, persona, planeta, personaResult, dynamoRecord;
+            var _a, persona, planeta, uuid, personaResult, dynamoRecord;
             return __generator(this, function (_b) {
                 switch (_b.label) {
                     case 0: return [4 /*yield*/, Promise.all([
@@ -73,23 +74,24 @@ var PersonService = /** @class */ (function () {
                         ])];
                     case 1:
                         _a = _b.sent(), persona = _a[0], planeta = _a[1];
+                        uuid = (0, uuid_1.v4)();
                         personaResult = this.mapping(persona.properties, planeta.properties);
-                        dynamoRecord = __assign(__assign({}, personaResult), { id: (0, uuid_1.v4)() });
+                        dynamoRecord = __assign(__assign({}, personaResult), { id: uuid });
                         console.log('Persona obtenida: ', dynamoRecord);
-                        return [4 /*yield*/, this.dynamoRepository.saveItem('personasTable', dynamoRecord)];
+                        return [4 /*yield*/, this.dynamoRepository.saveItem(constants_1.PERSONAS_TABLE_NAME, dynamoRecord)];
                     case 2:
                         _b.sent();
-                        return [2 /*return*/, personaResult];
+                        return [2 /*return*/, __assign(__assign({}, personaResult), { id: uuid })];
                 }
             });
         });
     };
-    PersonService.prototype.generatePlanetIds = function () {
+    FusionService.prototype.generatePlanetIds = function () {
         var id = Math.floor(Math.random() * 50);
         console.log('id plante', id);
         return id;
     };
-    PersonService.prototype.mapping = function (persona, planeta) {
+    FusionService.prototype.mapping = function (persona, planeta) {
         return {
             nombre: persona.name,
             genero: persona.gender === 'male' ? types_1.Genero.Masculino : types_1.Genero.Femenino,
@@ -97,12 +99,12 @@ var PersonService = /** @class */ (function () {
             planeta: {
                 nombre: planeta.name,
                 gravedad: planeta.gravity === 'unknown' ? 'desconocida' : planeta.gravity,
-                periodoRotacion: Number(planeta.rotation_period),
-                periodoTraslacion: Number(planeta.orbital_period),
+                periodoRotacion: isNaN(planeta.rotation_period) ? 0 : Number(planeta.rotation_period),
+                periodoTraslacion: isNaN(planeta.orbital_period) ? 0 : Number(planeta.orbital_period),
             },
         };
     };
-    return PersonService;
+    return FusionService;
 }());
-exports.PersonService = PersonService;
-//# sourceMappingURL=Person.service.js.map
+exports.FusionService = FusionService;
+//# sourceMappingURL=Fusion.service.js.map

@@ -1,13 +1,14 @@
+import { PERSONAS_TABLE_NAME } from '../common/constants';
 import { DynamoAbstract } from '../interfaces/Dynamo.interface';
 import { RepositoryAbstract } from '../interfaces/Repository.interface';
 import { Genero, Persona } from '../interfaces/types';
 import { v4 as uuidv4 } from 'uuid';
 
-export abstract class PersonServiceAbstract {
+export abstract class FusionServiceAbstract {
     abstract getPerson(id: number): Promise<Persona>;
 }
 
-export class PersonService implements PersonServiceAbstract {
+export class FusionService implements FusionServiceAbstract {
     private planetaRepository: RepositoryAbstract;
     private personaRepository: RepositoryAbstract;
     private dynamoRepository: DynamoAbstract;
@@ -25,11 +26,12 @@ export class PersonService implements PersonServiceAbstract {
             this.personaRepository.get(id),
             this.planetaRepository.get(this.generatePlanetIds()),
         ]);
+        const uuid = uuidv4()
         const personaResult = this.mapping(persona.properties, planeta.properties);
-        const dynamoRecord = {...personaResult, id: uuidv4()}
+        const dynamoRecord = {...personaResult, id: uuid}
         console.log('Persona obtenida: ', dynamoRecord)
-        await this.dynamoRepository.saveItem('personasTable', dynamoRecord);
-        return personaResult;
+        await this.dynamoRepository.saveItem(PERSONAS_TABLE_NAME, dynamoRecord);
+        return {...personaResult, id: uuid};
     }
 
     private generatePlanetIds() {
@@ -46,8 +48,8 @@ export class PersonService implements PersonServiceAbstract {
             planeta: {
                 nombre: planeta.name,
                 gravedad: planeta.gravity === 'unknown' ? 'desconocida' : planeta.gravity,
-                periodoRotacion: Number(planeta.rotation_period),
-                periodoTraslacion: Number(planeta.orbital_period),
+                periodoRotacion: isNaN(planeta.rotation_period) ? 0 : Number(planeta.rotation_period),
+                periodoTraslacion: isNaN(planeta.orbital_period) ? 0: Number(planeta.orbital_period),
             },
         };
     }
