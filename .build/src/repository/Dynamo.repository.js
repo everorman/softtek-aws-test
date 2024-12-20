@@ -50,8 +50,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.DynamoRepository = void 0;
 var client_dynamodb_1 = require("@aws-sdk/client-dynamodb");
 var lib_dynamodb_1 = require("@aws-sdk/lib-dynamodb");
-var constants_1 = require("../common/constants");
 var util_dynamodb_1 = require("@aws-sdk/util-dynamodb");
+var constants_1 = require("../common/constants");
 var DynamoRepository = /** @class */ (function () {
     function DynamoRepository(region, isLocal) {
         if (isLocal === void 0) { isLocal = false; }
@@ -61,13 +61,8 @@ var DynamoRepository = /** @class */ (function () {
             options.endpoint = 'http://localhost:8000';
         }
         var dynamoClient = new client_dynamodb_1.DynamoDBClient(options);
-        this.client = lib_dynamodb_1.DynamoDBDocumentClient.from(dynamoClient);
+        this.client = lib_dynamodb_1.DynamoDBDocument.from(dynamoClient);
     }
-    /**
-     * Almacena un objeto en una tabla de DynamoDB.
-     * @param tableName - El nombre de la tabla en DynamoDB.
-     * @param item - El objeto que se almacenará en la tabla.
-     */
     DynamoRepository.prototype.saveItem = function (tableName, item) {
         return __awaiter(this, void 0, void 0, function () {
             var params, error_1;
@@ -95,11 +90,6 @@ var DynamoRepository = /** @class */ (function () {
             });
         });
     };
-    /**
-     * Obtiene un objeto en una tabla de DynamoDB.
-     * @param tableName - El nombre de la tabla en DynamoDB.
-     * @param id - Id de objeto a consultar.
-     */
     DynamoRepository.prototype.getItemById = function (tableName, id) {
         return __awaiter(this, void 0, void 0, function () {
             var params, result, error_2;
@@ -184,6 +174,60 @@ var DynamoRepository = /** @class */ (function () {
                         error_4 = _a.sent();
                         console.error('Error al guardar la persona en DynamoDB:', error_4);
                         throw error_4;
+                    case 3: return [2 /*return*/];
+                }
+            });
+        });
+    };
+    DynamoRepository.prototype.getCache = function (tableName, id) {
+        return __awaiter(this, void 0, void 0, function () {
+            var result, error_5;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        _a.trys.push([0, 2, , 3]);
+                        return [4 /*yield*/, this.client.query({
+                                TableName: tableName,
+                                KeyConditionExpression: '#id = :id',
+                                ExpressionAttributeNames: { '#id': 'id' },
+                                ExpressionAttributeValues: { ':id': id.toString() },
+                                ScanIndexForward: false, // Orden descendente para obtener el registro más reciente
+                                Limit: 1, // Solo recuperar el registro más reciente
+                            })];
+                    case 1:
+                        result = _a.sent();
+                        return [2 /*return*/, result.Items && result.Items.length > 0 ? result.Items[0] : null];
+                    case 2:
+                        error_5 = _a.sent();
+                        console.error('Error fetching from cache:', error_5);
+                        return [2 /*return*/, null];
+                    case 3: return [2 /*return*/];
+                }
+            });
+        });
+    };
+    DynamoRepository.prototype.saveToCache = function (tableName, id, data) {
+        return __awaiter(this, void 0, void 0, function () {
+            var error_6;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        _a.trys.push([0, 2, , 3]);
+                        return [4 /*yield*/, this.client.put({
+                                TableName: tableName,
+                                Item: {
+                                    id: id.toString(),
+                                    timestamp: Date.now(),
+                                    data: data,
+                                },
+                            })];
+                    case 1:
+                        _a.sent();
+                        return [3 /*break*/, 3];
+                    case 2:
+                        error_6 = _a.sent();
+                        console.error('Error saving to cache:', error_6);
+                        return [3 /*break*/, 3];
                     case 3: return [2 /*return*/];
                 }
             });

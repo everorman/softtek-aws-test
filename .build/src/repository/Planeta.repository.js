@@ -54,34 +54,56 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.PlanetaRepository = void 0;
 var axios_1 = require("axios");
 var Repository_interface_1 = require("../interfaces/Repository.interface");
+var client_dynamodb_1 = require("@aws-sdk/client-dynamodb");
+var lib_dynamodb_1 = require("@aws-sdk/lib-dynamodb");
+var constants_1 = require("../common/constants");
+var dynamoClient = new client_dynamodb_1.DynamoDB({});
+var dynamoDb = lib_dynamodb_1.DynamoDBDocument.from(dynamoClient);
 var PlanetaRepository = /** @class */ (function (_super) {
     __extends(PlanetaRepository, _super);
-    function PlanetaRepository() {
-        return _super !== null && _super.apply(this, arguments) || this;
+    function PlanetaRepository(dynamoRepository) {
+        var _this = _super.call(this) || this;
+        _this.dynamoRepository = dynamoRepository;
+        return _this;
     }
     PlanetaRepository.prototype.get = function (id) {
         return __awaiter(this, void 0, void 0, function () {
-            var response, planeta, error_1;
+            var cachedPlaneta, response, planeta, error_1;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
-                        _a.trys.push([0, 2, , 3]);
-                        return [4 /*yield*/, axios_1.default.get("https://www.swapi.tech/api/planets/".concat(id))];
+                        _a.trys.push([0, 4, , 5]);
+                        return [4 /*yield*/, this.dynamoRepository.getCache(constants_1.CACHE_PLANETA_TABLE_NAME, id)];
                     case 1:
+                        cachedPlaneta = _a.sent();
+                        console.log('cachedPlaneta', cachedPlaneta);
+                        if (cachedPlaneta && !this.isExpired(cachedPlaneta.lastUpdated)) {
+                            console.log('Returning cached data');
+                            return [2 /*return*/, cachedPlaneta.data];
+                        }
+                        return [4 /*yield*/, axios_1.default.get("https://www.swapi.tech/api/planets/".concat(id))];
+                    case 2:
                         response = _a.sent();
                         planeta = response.data;
                         if (planeta.message !== 'ok') {
                             throw new Error('Response Planeta Error');
                         }
+                        return [4 /*yield*/, this.dynamoRepository.saveToCache(constants_1.CACHE_PLANETA_TABLE_NAME, id, planeta.result)];
+                    case 3:
+                        _a.sent();
                         return [2 /*return*/, planeta.result];
-                    case 2:
+                    case 4:
                         error_1 = _a.sent();
                         console.error('Error fetching planet:', error_1.message || error_1);
                         throw new Error('Failed to fetch planet data');
-                    case 3: return [2 /*return*/];
+                    case 5: return [2 /*return*/];
                 }
             });
         });
+    };
+    PlanetaRepository.prototype.isExpired = function (timestamp) {
+        var THIRTY_MINUTES = 30 * 60 * 1000;
+        return Date.now() - timestamp > THIRTY_MINUTES;
     };
     return PlanetaRepository;
 }(Repository_interface_1.RepositoryAbstract));

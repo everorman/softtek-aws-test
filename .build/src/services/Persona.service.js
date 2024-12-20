@@ -80,6 +80,25 @@ var PersonaService = /** @class */ (function () {
             });
         });
     };
+    PersonaService.prototype.getCache = function () {
+        return __awaiter(this, arguments, void 0, function (limit, lastKey) {
+            var _a, items, lastEvaluatedKey, unmarshalledItems, unmarshalledLastKey;
+            if (limit === void 0) { limit = 10; }
+            return __generator(this, function (_b) {
+                switch (_b.label) {
+                    case 0: return [4 /*yield*/, this.dynamoRepository.getAllItemsPaginated(constants_1.CACHE_PLANETA_TABLE_NAME, limit, lastKey)];
+                    case 1:
+                        _a = _b.sent(), items = _a.items, lastEvaluatedKey = _a.lastEvaluatedKey;
+                        unmarshalledItems = items.map(function (item) { return (0, util_dynamodb_1.unmarshall)(item); });
+                        unmarshalledLastKey = lastEvaluatedKey ? (0, util_dynamodb_1.unmarshall)(lastEvaluatedKey) : undefined;
+                        return [2 /*return*/, {
+                                items: unmarshalledItems,
+                                lastEvaluatedKey: unmarshalledLastKey,
+                            }];
+                }
+            });
+        });
+    };
     PersonaService.prototype.save = function (item) {
         return __awaiter(this, void 0, void 0, function () {
             var uuid;

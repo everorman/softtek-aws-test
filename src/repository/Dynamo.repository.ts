@@ -1,18 +1,18 @@
 import { DynamoDBClient, PutItemCommand, ScanCommand, ScanCommandInput } from '@aws-sdk/client-dynamodb';
 import {
-    DynamoDBDocumentClient,
+    DynamoDBDocument,
     GetCommand,
     GetCommandInput,
     PutCommand,
-    PutCommandInput,
+    PutCommandInput
 } from '@aws-sdk/lib-dynamodb';
-import { DynamoAbstract } from '../interfaces/Dynamo.interface';
-import { PERSONAS_TABLE_NAME } from '../common/constants';
 import { marshall } from '@aws-sdk/util-dynamodb';
+import { PERSONAS_TABLE_NAME } from '../common/constants';
+import { DynamoAbstract } from '../interfaces/Dynamo.interface';
 import { Persona } from '../interfaces/types';
 
 export class DynamoRepository implements DynamoAbstract {
-    private client: DynamoDBDocumentClient;
+    private client: DynamoDBDocument;
 
     constructor(region: string, isLocal: boolean = false) {
         const options: any = { region };
@@ -23,14 +23,9 @@ export class DynamoRepository implements DynamoAbstract {
         }
 
         const dynamoClient = new DynamoDBClient(options);
-        this.client = DynamoDBDocumentClient.from(dynamoClient);
+        this.client = DynamoDBDocument.from(dynamoClient);
     }
 
-    /**
-     * Almacena un objeto en una tabla de DynamoDB.
-     * @param tableName - El nombre de la tabla en DynamoDB.
-     * @param item - El objeto que se almacenará en la tabla.
-     */
     async saveItem(tableName: string, item: Record<string, any>): Promise<void> {
         const params: PutCommandInput = {
             TableName: tableName,
@@ -46,11 +41,6 @@ export class DynamoRepository implements DynamoAbstract {
         }
     }
 
-    /**
-     * Obtiene un objeto en una tabla de DynamoDB.
-     * @param tableName - El nombre de la tabla en DynamoDB.
-     * @param id - Id de objeto a consultar.
-     */
     async getItemById<T>(tableName: string, id: string): Promise<T | null> {
         const params: GetCommandInput = {
             TableName: tableName,
@@ -101,7 +91,7 @@ export class DynamoRepository implements DynamoAbstract {
         try {
             const params = {
                 TableName: PERSONAS_TABLE_NAME,
-                Item: marshall({...persona}),
+                Item: marshall({ ...persona }),
             };
 
             const command = new PutItemCommand(params);
@@ -110,6 +100,39 @@ export class DynamoRepository implements DynamoAbstract {
         } catch (error) {
             console.error('Error al guardar la persona en DynamoDB:', error);
             throw error;
+        }
+    }
+
+    async getCache(tableName: string, id: number): Promise<any | null> {
+        try {
+            const result = await this.client.query({
+                TableName: tableName,
+                KeyConditionExpression: '#id = :id',
+                ExpressionAttributeNames: { '#id': 'id' },
+                ExpressionAttributeValues: { ':id': id.toString() },
+                ScanIndexForward: false, // Orden descendente para obtener el registro más reciente
+                Limit: 1, // Solo recuperar el registro más reciente
+            });
+
+            return result.Items && result.Items.length > 0 ? result.Items[0] : null;
+        } catch (error) {
+            console.error('Error fetching from cache:', error);
+            return null;
+        }
+    }
+
+    async saveToCache(tableName: string, id: number, data: any): Promise<void> {
+        try {
+            await this.client.put({
+                TableName: tableName,
+                Item: {
+                    id: id.toString(),
+                    timestamp: Date.now(),
+                    data,
+                },
+            });
+        } catch (error) {
+            console.error('Error saving to cache:', error);
         }
     }
 }

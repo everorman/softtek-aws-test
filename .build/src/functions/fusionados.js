@@ -42,14 +42,14 @@ var Persona_repository_1 = require("../repository/Persona.repository");
 var Planeta_repository_1 = require("../repository/Planeta.repository");
 var Fusion_service_1 = require("../services/Fusion.service");
 module.exports.handler = function (event) { return __awaiter(void 0, void 0, void 0, function () {
-    var personaRepository, planetaRepository, dynamoRepository, service, payload, responseHandler, result, err_1;
+    var dynamoRepository, planetaRepository, personaRepository, service, payload, responseHandler, result, err_1;
     var _a, _b;
     return __generator(this, function (_c) {
         switch (_c.label) {
             case 0:
-                personaRepository = new Persona_repository_1.PersonaRepository();
-                planetaRepository = new Planeta_repository_1.PlanetaRepository();
                 dynamoRepository = new Dynamo_repository_1.DynamoRepository('us-east-1', true);
+                planetaRepository = new Planeta_repository_1.PlanetaRepository(dynamoRepository);
+                personaRepository = new Persona_repository_1.PersonaRepository(dynamoRepository);
                 service = new Fusion_service_1.FusionService(planetaRepository, personaRepository, dynamoRepository);
                 payload = (_b = (_a = event.queryStringParameters) !== null && _a !== void 0 ? _a : event.query) !== null && _b !== void 0 ? _b : {};
                 responseHandler = new Response_1.ResponseHandler();

@@ -5,9 +5,10 @@ import { PlanetaRepository } from '../repository/Planeta.repository';
 import { FusionService } from '../services/Fusion.service';
 
 module.exports.handler = async (event) => {
-    const personaRepository = new PersonaRepository();
-    const planetaRepository = new PlanetaRepository();
+    
     const dynamoRepository = new DynamoRepository('us-east-1', true);
+    const planetaRepository = new PlanetaRepository(dynamoRepository);
+    const personaRepository = new PersonaRepository(dynamoRepository);
     const service = new FusionService(planetaRepository, personaRepository, dynamoRepository);
     const payload = event.queryStringParameters ?? event.query ?? {};
     const responseHandler = new ResponseHandler();

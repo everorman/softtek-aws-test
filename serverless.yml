@@ -42,6 +42,12 @@ functions:
       - httpApi:
           path: /obtener
           method: get
+  cache:
+    handler: src/functions/cache.handler
+    events:
+      - httpApi:
+          path: /cache
+          method: get
 
 resources:
   Resources:

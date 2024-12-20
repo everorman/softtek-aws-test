@@ -54,34 +54,52 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.PersonaRepository = void 0;
 var axios_1 = require("axios");
 var Repository_interface_1 = require("../interfaces/Repository.interface");
+var constants_1 = require("../common/constants");
 var PersonaRepository = /** @class */ (function (_super) {
     __extends(PersonaRepository, _super);
-    function PersonaRepository() {
-        return _super !== null && _super.apply(this, arguments) || this;
+    function PersonaRepository(dynamoRepository) {
+        var _this = _super.call(this) || this;
+        _this.dynamoRepository = dynamoRepository;
+        return _this;
     }
     PersonaRepository.prototype.get = function (id) {
         return __awaiter(this, void 0, void 0, function () {
-            var response, planeta, error_1;
+            var cachedPersona, response, persona, error_1;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
-                        _a.trys.push([0, 2, , 3]);
-                        return [4 /*yield*/, axios_1.default.get("https://www.swapi.tech/api/people/".concat(id))];
+                        _a.trys.push([0, 4, , 5]);
+                        return [4 /*yield*/, this.dynamoRepository.getCache(constants_1.CACHE_PERSONA_TABLE_NAME, id)];
                     case 1:
+                        cachedPersona = _a.sent();
+                        console.log('cachedPersona', cachedPersona);
+                        if (cachedPersona && !this.isExpired(cachedPersona.lastUpdated)) {
+                            console.log('Returning cached data');
+                            return [2 /*return*/, cachedPersona.data];
+                        }
+                        return [4 /*yield*/, axios_1.default.get("https://www.swapi.tech/api/people/".concat(id))];
+                    case 2:
                         response = _a.sent();
-                        planeta = response.data;
-                        if (planeta.message !== 'ok') {
+                        persona = response.data;
+                        if (persona.message !== 'ok') {
                             throw new Error('Response Persona Error');
                         }
-                        return [2 /*return*/, planeta.result];
-                    case 2:
+                        return [4 /*yield*/, this.dynamoRepository.saveToCache(constants_1.CACHE_PERSONA_TABLE_NAME, id, persona.result)];
+                    case 3:
+                        _a.sent();
+                        return [2 /*return*/, persona.result];
+                    case 4:
                         error_1 = _a.sent();
                         console.error('Error fetching person:', error_1.message || error_1);
                         throw new Error('Failed to fetch person data');
-                    case 3: return [2 /*return*/];
+                    case 5: return [2 /*return*/];
                 }
             });
         });
+    };
+    PersonaRepository.prototype.isExpired = function (timestamp) {
+        var THIRTY_MINUTES = 30 * 60 * 1000;
+        return Date.now() - timestamp > THIRTY_MINUTES;
     };
     return PersonaRepository;
 }(Repository_interface_1.RepositoryAbstract));
