@@ -4,7 +4,25 @@ frameworkVersion: '3'
 provider:
   name: aws
   runtime: nodejs20.x
+  
+  httpApi:
+    authorizers:
+      cognitoAuthorizer:
+        type: jwt
+        identitySource: '$request.header.Authorization'
+        issuerUrl: 'https://cognito-idp.us-east-1.amazonaws.com/us-east-1_XiO86pRpM'
+        audience:
+          - 6bfp1smukujvm2cqabucaaplqt
+    logs:
+      fullExecutionData: true
+      retentionInDays: 7
+
   iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - cognito-idp:*
+      Resource:
+        - arn:aws:cognito-idp:us-east-1:296062591296:userpool/us-east-1_XiO86pRpM 
     - Effect: Allow
       Action:
         - dynamodb:*
@@ -41,6 +59,7 @@ functions:
       - httpApi:
           path: /fusionados
           method: get
+          authorizer: cognitoAuthorizer
   save:
     handler: src/functions/save.handler
     events:
@@ -53,12 +72,21 @@ functions:
       - httpApi:
           path: /obtener
           method: get
+          authorizer: cognitoAuthorizer
   cache:
     handler: src/functions/cache.handler
     events:
       - httpApi:
           path: /cache
           method: get
+          authorizer: cognitoAuthorizer
+
+  auth:
+    handler: src/functions/auth.handler
+    events:
+      - httpApi:
+          path: /auth
+          method: post
 
 resources:
   Resources:
