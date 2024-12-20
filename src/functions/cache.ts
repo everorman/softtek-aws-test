@@ -3,7 +3,7 @@ import { DynamoRepository } from '../repository/Dynamo.repository';
 import { PersonaService } from '../services/Persona.service';
 
 module.exports.handler = async (event) => {
-    const dynamoRepository = new DynamoRepository('us-east-1', true);
+    const dynamoRepository = new DynamoRepository('us-east-1');
     const service = new PersonaService(dynamoRepository);
     const payload = event.queryStringParameters ?? event.query ?? {};
 

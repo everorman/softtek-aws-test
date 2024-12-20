@@ -6,7 +6,7 @@ import { RequestValidator } from '../schema/RequestValidator';
 import { PersonaService } from '../services/Persona.service';
 
 module.exports.handler = async (event) => {
-    const dynamoRepository = new DynamoRepository('us-east-1', true);
+    const dynamoRepository = new DynamoRepository('us-east-1');
     const service = new PersonaService(dynamoRepository);
     const payload = event.body ? JSON.parse(event.body) : {};
 

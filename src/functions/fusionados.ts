@@ -6,7 +6,7 @@ import { FusionService } from '../services/Fusion.service';
 
 module.exports.handler = async (event) => {
     
-    const dynamoRepository = new DynamoRepository('us-east-1', true);
+    const dynamoRepository = new DynamoRepository('us-east-1');
     const planetaRepository = new PlanetaRepository(dynamoRepository);
     const personaRepository = new PersonaRepository(dynamoRepository);
     const service = new FusionService(planetaRepository, personaRepository, dynamoRepository);

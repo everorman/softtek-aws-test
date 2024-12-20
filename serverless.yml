@@ -4,6 +4,17 @@ frameworkVersion: '3'
 provider:
   name: aws
   runtime: nodejs20.x
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - dynamodb:*
+      Resource:
+        - arn:aws:dynamodb:us-east-1:296062591296:table/personaCache
+        - arn:aws:dynamodb:us-east-1:296062591296:table/personaCache/*
+        - arn:aws:dynamodb:us-east-1:296062591296:table/planetaCache
+        - arn:aws:dynamodb:us-east-1:296062591296:table/planetaCache/*
+        - arn:aws:dynamodb:us-east-1:296062591296:table/personasTable
+        - arn:aws:dynamodb:us-east-1:296062591296:table/personasTable/*
 
 custom:
   dynamodb:
@@ -51,7 +62,7 @@ functions:
 
 resources:
   Resources:
-    ExampleTable:
+    PersonaTable:
       Type: 'AWS::DynamoDB::Table'
       Properties:
         TableName: personasTable
@@ -61,3 +72,36 @@ resources:
         KeySchema:
           - AttributeName: id
             KeyType: HASH
+        BillingMode: PAY_PER_REQUEST
+
+    PlanetaCacheTable:
+      Type: 'AWS::DynamoDB::Table'
+      Properties:
+        TableName: planetaCache
+        AttributeDefinitions:
+          - AttributeName: id
+            AttributeType: S
+          - AttributeName: timestamp
+            AttributeType: N
+        KeySchema:
+          - AttributeName: id
+            KeyType: HASH
+          - AttributeName: timestamp
+            KeyType: RANGE
+        BillingMode: PAY_PER_REQUEST
+
+    PersonaCacheTable:
+      Type: 'AWS::DynamoDB::Table'
+      Properties:
+        TableName: personaCache
+        AttributeDefinitions:
+          - AttributeName: id
+            AttributeType: S
+          - AttributeName: timestamp
+            AttributeType: N
+        KeySchema:
+          - AttributeName: id
+            KeyType: HASH
+          - AttributeName: timestamp
+            KeyType: RANGE
+        BillingMode: PAY_PER_REQUEST
