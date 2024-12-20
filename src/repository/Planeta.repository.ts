@@ -1,11 +1,7 @@
 import axios from 'axios';
-import { RepositoryAbstract } from '../interfaces/Repository.interface';
-import { DynamoDB } from '@aws-sdk/client-dynamodb';
-import { DynamoDBDocument } from '@aws-sdk/lib-dynamodb';
 import { CACHE_PLANETA_TABLE_NAME } from '../common/constants';
 import { DynamoAbstract } from '../interfaces/Dynamo.interface';
-const dynamoClient = new DynamoDB({});
-const dynamoDb = DynamoDBDocument.from(dynamoClient);
+import { RepositoryAbstract } from '../interfaces/Repository.interface';
 
 export class PlanetaRepository extends RepositoryAbstract {
     private dynamoRepository: DynamoAbstract;

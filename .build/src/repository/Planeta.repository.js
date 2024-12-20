@@ -53,12 +53,8 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.PlanetaRepository = void 0;
 var axios_1 = require("axios");
-var Repository_interface_1 = require("../interfaces/Repository.interface");
-var client_dynamodb_1 = require("@aws-sdk/client-dynamodb");
-var lib_dynamodb_1 = require("@aws-sdk/lib-dynamodb");
 var constants_1 = require("../common/constants");
-var dynamoClient = new client_dynamodb_1.DynamoDB({});
-var dynamoDb = lib_dynamodb_1.DynamoDBDocument.from(dynamoClient);
+var Repository_interface_1 = require("../interfaces/Repository.interface");
 var PlanetaRepository = /** @class */ (function (_super) {
     __extends(PlanetaRepository, _super);
     function PlanetaRepository(dynamoRepository) {
